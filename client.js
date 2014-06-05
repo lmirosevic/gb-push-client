@@ -7,7 +7,6 @@
 //
 
 var nconf = require('nconf'),
-    api = require('gb-api'),
     coffeeResque = require('coffee-resque'),
     url = require('url');
 
@@ -35,7 +34,7 @@ var Client = function() {
   };
 
   this.send = function(channel, notification, callback) {
-    toolbox.requiredArguments(channel, notification, alert, callback);
+    toolbox.requiredArguments(channel, notification, callback);
     toolbox.requiredVariables(notification.targets, notification.alert, notification.payload);
 
     // convert the input into a message object that the push service expects
