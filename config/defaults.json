@@ -1,0 +1,4 @@
+{
+	"QUEUE": "push.client",
+	"MAX_RECONNECTION_TIMEOUT": 1000
+}

@@ -6,13 +6,17 @@
 //  Copyright (c) 2014 Goonbee. All rights reserved.
 //
 
-var nconf = require('nconf'),
+var nconf = require('./lib/config'),
     coffeeResque = require('coffee-resque'),
+    _ = require('underscore'),
+    toolbox = require('gb-toolbox'),
     url = require('url');
 
 /* Main code */
 
 var Client = function() {
+  var resque;
+
   this.connect = function(redisURL) {
     var parsedUrl = url.parse(redisURL);
     var connectionOptions = {};
@@ -21,27 +25,26 @@ var Client = function() {
     if (!_.isNull(parsedUrl.auth)) connectionOptions.password = parsedUrl.auth.split(':')[1];
     if (!_.isNull(parsedUrl.pathname)) connectionOptions.database = parsedUrl.pathname.split('/')[1];
     console.log('Attempting connection to Redis for notification egress...');
-    var resque = coffeeResque.connect(connectionOptions);
+    resque = coffeeResque.connect(connectionOptions);
     resque.redis.on('error', function(err) {
         console.error('Error occured on notification egress Redis', err);
     });
     resque.redis.on('reconnecting', function(err) {
       console.log('Attempting reconnection to Redis for notification egress...');
     });
-    resque.redis.retry_max_delay = 1000;
+    resque.redis.retry_max_delay = nconf.get('MAX_RECONNECTION_TIMEOUT');
 
     return resque.redis;
   };
 
   this.send = function(channel, notification, callback) {
-    toolbox.requiredArguments(channel, notification, callback);
-    toolbox.requiredVariables(notification.targets, notification.alert, notification.payload);
+    toolbox.requiredArguments(channel, notification);
+    toolbox.requiredVariables(notification.alert);
 
     // convert the input into a message object that the push service expects
     var translatedNotification = {};
-    translatedNotification.targets = notification.targets;
     translatedNotification.alert = notification.alert;
-    translatedNotification.payload = notification.payload;
+    if (!_.isUndefined(notification.payload)) translatedNotification.payload = notification.payload;
     if (!_.isUndefined(notification.badge)) translatedNotification.badge = notification.badge;
     if (!_.isUndefined(notification.sound)) translatedNotification.sound = notification.sound;
     if (!_.isUndefined(notification.topic)) translatedNotification.topic = notification.topic;
@@ -51,7 +54,7 @@ var Client = function() {
     };
     
     // send the push off
-    resque.enqueue(options.queue, 'PushJob', message, function(err, remainingJobs) {
+    resque.enqueue(nconf.get('QUEUE'), 'PushMessage', [message], function(err, remainingJobs) {
       toolbox.callCallback(callback, err);
     });
   };
