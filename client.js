@@ -39,7 +39,6 @@ var Client = function() {
 
   this.send = function(channel, notification, callback) {
     toolbox.requiredArguments(channel, notification);
-    toolbox.requiredVariables(notification.alert);
 
     // convert the input into a message object that the push service expects
     var translatedNotification = {};
