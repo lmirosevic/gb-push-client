@@ -2,7 +2,7 @@
 	"name": "gb-push-client",
 	"description": "Client library for Goonbee's push service. Push message sending part.",
 	"author" : "Luka Mirosevic <luka@goonbee.com>",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"private": false,
 	"main": "client.js",
 	"repository": {
