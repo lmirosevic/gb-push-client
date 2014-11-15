@@ -43,10 +43,11 @@ var Client = function() {
 
     // convert the input into a message object that the push service expects
     var translatedNotification = {};
-    translatedNotification.alert = notification.alert;
+    if (!_.isUndefined(notification.alert)) translatedNotification.alert = notification.alert;
     if (!_.isUndefined(notification.payload)) translatedNotification.payload = notification.payload;
     if (!_.isUndefined(notification.badge)) translatedNotification.badge = notification.badge;
     if (!_.isUndefined(notification.sound)) translatedNotification.sound = notification.sound;
+    if (!_.isUndefined(notification.contentAvailable)) translatedNotification.contentAvailable = notification.contentAvailable;
     if (!_.isUndefined(notification.topic)) translatedNotification.topic = notification.topic;
     var message = {
       channel: channel,
@@ -70,6 +71,7 @@ var client = module.exports = new Client();
 //     alert: 'New game',
 //     badge: 3,
 //     sound: 'jingle',
+//     contentAvailable: true,
 //     topic: 'something'
 //   }
 // }
