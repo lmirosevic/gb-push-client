@@ -1,9 +1,9 @@
 var pushClient = require('./client');
 
-// Connect to redis resque
+// Connect to the push backend
 pushClient.connect('redis://localhost:6379/1');
 
-// Send a push notification on a channel to all subscribers
+// Send a push notification to a channel
 pushClient.send('wcsg.match.crovsbra.goals', {
   payload: {},
   alert: 'New game',
